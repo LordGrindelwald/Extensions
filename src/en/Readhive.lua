@@ -1,4 +1,4 @@
--- {"id":4304,"ver":"1.0.2","libVer":"1.0.0","author":"MechTechnology"}
+-- {"id":4304,"ver":"1.1.2","libVer":"1.0.0","author":"MechTechnology"}
 
 local baseURL = "https://readhive.org"
 
@@ -36,12 +36,12 @@ end
 
 local function getLatestListing(data)
 	local doc = GETDocument(expandURL("/page/" ..data[PAGE] .. "/?"))
-	local data = doc:selectFirst(".space-y-16"):selectFirst(".flex.flex-wrap")
-	return map(data:select(".flex.flex-col.w-full.px-2"), function(v)
+	local data = doc:selectFirst("main"):selectFirst(".space-y-8")
+	return map(data:select(".flex.flex-col.w-full.px-2.mb-4"), function(v)
 		local a = v:selectFirst("a")
 		if a ~= nil then
 			return Novel {
-				title = a:selectFirst("img"):attr("alt"):gsub(" Thumbnail*$", ""),
+				title = a:selectFirst("img"):attr("alt"):gsub(" thumbnail*$", ""),
 				link = shrinkURL(a:attr("href")),
 				imageURL = expandURL(a:selectFirst("img"):attr("src"))
 			}
@@ -64,16 +64,16 @@ local function parseNovel(novelURL, loadChapters)
 	}
 	
 	if loadChapters then
-		local chapterList = content:selectFirst(".grid-in-content"):select("a")
+		local chapterList = content:selectFirst(".grid-in-content"):selectFirst(".grid.w-full"):select("a")
 		local chapterOrder = chapterList:size()
 		local chapters = (mapNotNil(chapterList, function(v, i)
 			-- This is to ignore the premium chapter, those have a lock icon in their anchor.
 			chapterOrder = chapterOrder - 1
-			local PremChapter = v:selectFirst("svg")
+			local PremChapter = v:selectFirst(".flex.rounded.bg-red")
 			if PremChapter ~= nil then return nil end
 			return NovelChapter {
 				order = chapterOrder,
-				title = v:selectFirst("p"):text(),
+				title = v:selectFirst("span.ml-1"):text(),
 				link = shrinkURL(v:attr("href")),
 				release = v:selectFirst("span.text-xs"):text()
 			}
