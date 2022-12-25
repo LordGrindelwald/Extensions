@@ -1,4 +1,4 @@
--- {"id":4500,"ver":"1.0.3","libVer":"1.0.0","author":"MechTechnology","dep":["Madara>=2.3.2"]}
+-- {"id":4500,"ver":"1.0.4","libVer":"1.0.0","author":"MechTechnology","dep":["Madara>=2.3.2"]}
 
 return Require("Madara")("https://arnovel.me", {
 	id = 4500,
@@ -8,6 +8,7 @@ return Require("Madara")("https://arnovel.me", {
 	shrinkURLNovel = "novel",
 	latestNovelSel = "div.col-12.col-md-6",
 	searchHasOper = true,
+	customStyle = "body { direction: rtl; }",
 
 	genres = {
 		["%d8%a3%d9%83%d8%b4%d9%86"] = "أكشن",

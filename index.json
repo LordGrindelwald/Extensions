@@ -26,7 +26,7 @@
     },
     {
       "name": "Madara",
-      "ver": "2.4.0"
+      "ver": "2.5.0"
     }
   ],
   "scripts": [
@@ -196,7 +196,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/ReaperScans.png",
       "id": 4223,
       "lang": "en",
-      "ver": "1.0.4",
+      "ver": "2.0.1",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -296,7 +296,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/ArNovel.png",
       "id": 4500,
       "lang": "ar",
-      "ver": "1.0.3",
+      "ver": "1.0.4",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -306,7 +306,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/TeamXNovel.png",
       "id": 4501,
       "lang": "ar",
-      "ver": "1.0.1",
+      "ver": "1.0.2",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -426,7 +426,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/RewayatClub.png",
       "id": 3302,
       "lang": "ar",
-      "ver": "1.0.1",
+      "ver": "1.0.2",
       "libVer": "1.0.0",
       "md5": ""
     },

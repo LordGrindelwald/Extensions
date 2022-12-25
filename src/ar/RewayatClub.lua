@@ -1,4 +1,4 @@
--- {"id":3302,"ver":"1.0.1","libVer":"1.0.0","author":"Ali Mohamed","dep":["url>=1.0.0","dkjson>=1.0.0"]}
+-- {"id":3302,"ver":"1.0.2","libVer":"1.0.0","author":"Ali Mohamed","dep":["url>=1.0.0","dkjson>=1.0.0"]}
 
 local baseURL = "https://rewayat.club"
 local baseUrlApi = "https://api.rewayat.club"
@@ -72,7 +72,11 @@ return {
 
     getPassage = function(chapterURL)
         local resJson = json.GET(baseURL.."/api/chapters/"..chapterURL)
-        return pageOfElem(Document(table.concat(flatten(resJson.content))))
+        return pageOfElem(
+                Document(table.concat(flatten(resJson.content))),
+                false,
+                "body { direction: rtl; }"
+        )
     end,
 
     search = function(data)

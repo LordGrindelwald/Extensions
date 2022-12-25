@@ -1,4 +1,4 @@
--- {"ver":"2.4.1","author":"TechnoJo4","dep":["url"]}
+-- {"ver":"2.5.0","author":"TechnoJo4","dep":["url"]}
 
 local encode = Require("url").encode
 local text = function(v)
@@ -30,7 +30,10 @@ local defaults = {
 	ajaxFormDataSel= "a.wp-manga-action-button",
 	ajaxFormDataAttr = "data-post",
 	ajaxFormDataUrl = "/wp-admin/admin-ajax.php",
-	ajaxSeriesUrl = "ajax/chapters/"
+	ajaxSeriesUrl = "ajax/chapters/",
+
+	--- Some sites require custom CSS to exist, such as RTL support
+	customStyle = "",
 }
 
 local ORDER_BY_FILTER_EXT = { "Relevance", "Latest", "A-Z", "Rating", "Trending", "Most Views", "New" }
@@ -130,7 +133,7 @@ function defaults:getPassage(url)
 	htmlElement:select("div.lnbad-tag"):remove() -- LightNovelBastion text size
 	htmlElement:select("i.icon.j_open_para_comment.j_para_comment_count"):remove() -- BoxNovel, VipNovel numbers
 
-	return pageOfElem(htmlElement, true)
+	return pageOfElem(htmlElement, true, self.customStyle)
 end
 
 ---@param image_element Element An img element of which the biggest image shall be selected.

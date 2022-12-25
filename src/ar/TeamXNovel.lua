@@ -1,4 +1,4 @@
--- {"id":4501,"ver":"1.0.1","libVer":"1.0.0","author":"MechTechnology"}
+-- {"id":4501,"ver":"1.0.2","libVer":"1.0.0","author":"MechTechnology"}
 
 return Require("Madara")("https://teamxnovel.com", {
 	id = 4501,
@@ -10,6 +10,7 @@ return Require("Madara")("https://teamxnovel.com", {
 	novelListingURLSuffix="&post_type=wp-manga",
 	shrinkURLNovel = "novel",
 	searchHasOper = true,
+	customStyle = "body { direction: rtl; }",
 
 	genres = {
 		["%d8%a5%d8%b9%d8%a7%d8%af%d8%a9-%d8%a8%d8%b9%d8%ab"] = "إعادة بعث",
