@@ -18,9 +18,18 @@ local function getPassage(chapterURL)
 	return pageOfElem(htmlElement, true)
 end
 
+--- @param t1 table
+--- @param t2 Elements
+local function TableConcat(t1, t2)
+	for i = 0, t2:size() do
+		t1[#t1] = t2[i]
+	end
+	return t1
+end
+
 local function parseNovel(novelURL)
 	--- URL of the novel
-	local url = baseURL .. "/" .. novelURL
+	local url = expandURL(novelURL)
 	--- HTML document of the novel
 	local document = GETDocument(url)
 
@@ -29,7 +38,6 @@ local function parseNovel(novelURL)
 
 	local headNChaptersSelector = "div.p-2.space-y-4"
 	--- Element that contains the header & chapters
-	print(document:toString():gsub("\n",""))
 	local headerNChapters = document:selectFirst(headNChaptersSelector)
 
 	--- Element that contains the cover art & title
@@ -42,29 +50,30 @@ local function parseNovel(novelURL)
 	--- Image element
 	local imageElement = headerElement:selectFirst("img")
 	novelInfo:setImageURL(imageElement:attr("src"))
-	
+
 	--- Element that contains the Summary & Other information
-	local aboutElement = document:selectFirst("div.lg\:col-span-1")
+	local aboutElement = document:selectFirst("section.p-2")
 
 	--- Summary Element
 	local descriptionElement = aboutElement:selectFirst("p")
-	novelInfo:setDescription(descriptionElement:text():gsub("<br>","\n"))
+	novelInfo:setDescription(descriptionElement:text():gsub("<br>", "\n"))
 
 	--- Other elements, such as source language and such forth
 	local otherElements = document:selectFirst("dl.mt-2"):select("dd")
 
 	--- Language element, listed first
-	local languageElement = otherElements[0]
+	local languageElement = otherElements:get(0)
 	novelInfo:setLanguage(languageElement:text())
 
 	--- Status of the novel, listed second
-	local statusElement = otherElements[1]
+	local statusElement = otherElements:get(1)
 	local status = statusElement:text()
 	novelInfo:setStatus(NovelStatus(status == "Completed" and 1 or status == "Ongoing" and 0 or 3))
 
-	local chaptersBoxElementQuery = "pb-4"
+	local chaptersBoxElementQuery = "div.pb-4"
 	--- Element that contains the chapters
-	local chaptersBoxElement = headerNChapters:selectFirst(chaptersBoxElementQuery):selectFirst("ul")
+	local chaptersBoxElement = headerNChapters:selectFirst(chaptersBoxElementQuery)
+	local chaptersContainer = chaptersBoxElement:selectFirst("ul")
 
 	--- pages to iterate over
 	local pages = 0
@@ -75,46 +84,47 @@ local function parseNovel(novelURL)
 	local chapterElements = {}
 
 	-- Loop through the pages
-	local page = 0;
+	local page = 1;
 	while (page < pages)
 	do
 		-- Only reload the page for subsequent pages, we already have the first page
-		if (page ~= 0) then
-			document = GETDocument(url .. "?page=" .. page):selectFirst("article.post")
+		if (page > 1) then
+			document = GETDocument(url .. "?page=" .. page)
 		end
 		headerNChapters = document:selectFirst(headNChaptersSelector)
-		chaptersBoxElement = headerNChapters:selectFirst(chaptersBoxElementQuery):selectFirst("ul")
-		chapterElements.concat(chaptersBoxElement:select("li"))
+		chaptersContainer = headerNChapters:selectFirst(chaptersBoxElementQuery):selectFirst("ul")
+		local chapters = chaptersContainer:select("li")
+		TableConcat(chapterElements, chapters)
 		page = page + 1;
-		delay(100)
+		delay(200)
 	end
 
 	local count = 0
 	local chapters = mapNotNil(
-		chapterElements,
-		function(chapter)
-			-- ignore paid chapters
-			if chapter:selectFirst("span") == nil then
-				return nil
-			end
-			local c = NovelChapter()
-			c:setTitle(chapter:selectFirst("p"):text())
-			c:setLink(chapter:selectFirst("a"):attr("href"))
+			chapterElements,
+			function(chapter)
+				-- ignore paid chapters
+				if chapter:selectFirst("span") == nil then
+					return nil
+				end
+				local c = NovelChapter()
+				c:setTitle(chapter:selectFirst("p"):text())
+				c:setLink(chapter:selectFirst("a"):attr("href"))
 
-			-- count the chapters
-			count = count + 1
-			return c
-		end
+				-- count the chapters
+				count = count + 1
+				return c
+			end
 	)
 
 	-- Reverse the chapter order
 	chapters = map(
-		chapters,
-		function(chapter)
-			chapter:setOrder(count)
-			count = count - 1
-			return chapter
-		end
+			chapters,
+			function(chapter)
+				chapter:setOrder(count)
+				count = count - 1
+				return chapter
+			end
 	)
 	Reverse(chapters)
 
