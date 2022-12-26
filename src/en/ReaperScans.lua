@@ -157,7 +157,7 @@ return {
 			return map(d:select("li.col-span-1"), function(v)
 				local lis = Novel()
 				lis:setImageURL(v:selectFirst("img"):attr("src"))
-				local title = v:selectFirst("p.text-sm")
+				local title = v:selectFirst("a.my-2")
 				lis:setLink(shrinkURL(title:attr("href")))
 				lis:setTitle(title:text())
 				return lis
