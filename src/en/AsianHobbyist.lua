@@ -1,4 +1,4 @@
--- {"id":951,"ver":"2.0.4","libVer":"1.0.0","author":"Doomsdayrs"}
+-- {"id":951,"ver":"2.0.5","libVer":"1.0.0","author":"Doomsdayrs"}
 
 local baseURL = "https://www.asianhobbyist.com"
 local encoding = ""
@@ -14,7 +14,7 @@ local function shrinkURL(url, type)
 	if type == KEY_NOVEL_URL then
 		return url:gsub(baseURL .. "/series/", ""):gsub("/", "")
 	else
-		return url:gsub(baseURL .. "/", ""):gsub("/", "")
+		return url:gsub(baseURL .. "/", "")
 	end
 end
 
