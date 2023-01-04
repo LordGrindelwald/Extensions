@@ -1,4 +1,4 @@
--- {"id":4501,"ver":"1.0.2","libVer":"1.0.0","author":"MechTechnology"}
+-- {"id":4501,"ver":"1.0.3","libVer":"1.0.0","author":"MechTechnology"}
 
 return Require("Madara")("https://teamxnovel.com", {
 	id = 4501,
