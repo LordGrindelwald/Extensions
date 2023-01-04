@@ -1,4 +1,4 @@
--- {"id":428270,"ver":"1.0.0","libVer":"1.0.0","author":"Doomsdayrs","dep":["Madara>=2.2.0"]}
+-- {"id":428270,"ver":"1.0.1","libVer":"1.0.0","author":"Doomsdayrs","dep":["Madara>=2.2.0"]}
 
 return Require("Madara")("https://zetrotranslation.com", {
 	id = 428270,
@@ -6,7 +6,7 @@ return Require("Madara")("https://zetrotranslation.com", {
 	imageURL = "https://zetrotranslation.com/wp-content/uploads/2020/12/logo_red-e1607700845220.png",
 
 	-- defaults values
-	latestNovelSel = "div.col-12.col-md-6.badge-pos-1",
+	latestNovelSel = "div.page-listing-item",
 	ajaxUsesFormData = true,
 
 	-- There are paid chapters, we can ignore it
