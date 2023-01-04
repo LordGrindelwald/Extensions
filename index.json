@@ -26,7 +26,7 @@
     },
     {
       "name": "Madara",
-      "ver": "2.4.0"
+      "ver": "2.6.0"
     }
   ],
   "scripts": [
@@ -156,7 +156,7 @@
       "imageURL": "https://novelhard.com/wp-content/uploads/2019/08/novelhard.com_-1.png",
       "id": 81,
       "lang": "en",
-      "ver": "2.1.1",
+      "ver": "2.1.3",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -196,7 +196,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/ReaperScans.png",
       "id": 4223,
       "lang": "en",
-      "ver": "1.0.4",
+      "ver": "2.0.1",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -215,16 +215,6 @@
       "fileName": "ZinNovel",
       "imageURL": "http://github.com/shosetsuorg/extensions/raw/dev/icons/ZinNovel.png",
       "id": 4225,
-      "lang": "en",
-      "ver": "1.0.3",
-      "libVer": "1.0.0",
-      "md5": ""
-    },
-    {
-      "name": "Wonpress",
-      "fileName": "Wonpress",
-      "imageURL": "http://github.com/shosetsuorg/extensions/raw/dev/icons/Wonpress.png",
-      "id": 4226,
       "lang": "en",
       "ver": "1.0.3",
       "libVer": "1.0.0",
@@ -266,7 +256,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/Mylovenovel.png",
       "id": 4303,
       "lang": "en",
-      "ver": "1.0.3",
+      "ver": "1.1.3",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -276,7 +266,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/Readhive.png",
       "id": 4304,
       "lang": "en",
-      "ver": "1.0.1",
+      "ver": "1.1.2",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -286,7 +276,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/MoonlightNovels.png",
       "id": 4305,
       "lang": "en",
-      "ver": "1.0.0",
+      "ver": "1.1.0",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -296,7 +286,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/ArNovel.png",
       "id": 4500,
       "lang": "ar",
-      "ver": "1.0.3",
+      "ver": "1.0.4",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -306,7 +296,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/TeamXNovel.png",
       "id": 4501,
       "lang": "ar",
-      "ver": "1.0.1",
+      "ver": "1.0.3",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -316,7 +306,7 @@
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/ReadLightNovel.png",
       "id": 6118,
       "lang": "en",
-      "ver": "2.0.8",
+      "ver": "2.0.9",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -401,12 +391,32 @@
       "md5": ""
     },
     {
+      "name": "Novel Nb",
+      "fileName": "NovelNb",
+      "imageURL": "https://novelnb.com/assets/css/img/logo.png",
+      "id": 1781,
+      "lang": "en",
+      "ver": "1.0.1",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Asura Light Novel",
+      "fileName": "AsuraLightNovel",
+      "imageURL": "https://asuralightnovel.com/wp-content/uploads/2017/10/asura-light-novel-logo-4-e1627846850601.png",
+      "id": 1783,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
       "name": "Rewayat Club - نادي الروايات",
       "fileName": "RewayatClub",
       "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/RewayatClub.png",
       "id": 3302,
       "lang": "ar",
-      "ver": "1.0.1",
+      "ver": "1.0.2",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -476,7 +486,7 @@
       "imageURL": "https://novelteam.net/wp-content/themes/madara/images/logo.png",
       "id": 724098,
       "lang": "en",
-      "ver": "1.0.0",
+      "ver": "1.0.1",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -487,6 +497,16 @@
       "id": 16581,
       "lang": "en",
       "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Rulate",
+      "fileName": "Rulate",
+      "imageURL": "https://github.com/shosetsuorg/extensions/raw/dev/icons/Rulate.png",
+      "id": 70,
+      "lang": "ru",
+      "ver": "1.0.1",
       "libVer": "1.0.0",
       "md5": ""
     },
@@ -507,6 +527,66 @@
       "id": 72,
       "lang": "ru",
       "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Ranobelib",
+      "fileName": "Ranobelib",
+      "imageURL": "https://ranobelib.me/icons/android-icon-192x192.png",
+      "id": 73,
+      "lang": "ru",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Jaomix",
+      "fileName": "Jaomix",
+      "imageURL": "https://jaomix.ru/wp-content/uploads/2019/08/cropped-logo-2.png",
+      "id": 74,
+      "lang": "ru",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Renovels",
+      "fileName": "Renovels",
+      "imageURL": "https://gitlab.com/shosetsuorg/extensions/-/raw/dev/icons/Renovels.png",
+      "id": 701,
+      "lang": "ru",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Novelcake",
+      "fileName": "novelcake",
+      "imageURL": "https://novelcake.com/wp-content/uploads/2017/10/NOVELCAKE_2.png",
+      "id": 75,
+      "lang": "en",
+      "ver": "1.0.6",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "WuxiaWorld.Site",
+      "fileName": "WuxiaWorldsite",
+      "imageURL": "https://wuxiaworld.site/wp-content/uploads/2019/02/WuxiaWorld-e1567126455773.png",
+      "id": 76,
+      "lang": "en",
+      "ver": "1.0.6",
+      "libVer": "1.0.0",
+      "md5": ""
+    },
+    {
+      "name": "Sky-mtl(novel-gate)",
+      "fileName": "Sky-mtl",
+      "imageURL": "https://sky-mtl.com/wp-content/uploads/2017/10/10.png",
+      "id": 77,
+      "lang": "en",
+      "ver": "1.0.2",
       "libVer": "1.0.0",
       "md5": ""
     }
