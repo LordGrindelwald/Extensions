@@ -1,4 +1,4 @@
--- {"ver":"2.6.0","author":"TechnoJo4","dep":["url"]}
+-- {"ver":"2.7.0","author":"TechnoJo4","dep":["url"]}
 
 local encode = Require("url").encode
 local text = function(v)
@@ -127,7 +127,7 @@ function defaults:getPassage(url)
 	local title = htmlElement:selectFirst("ol.breadcrumb li.active"):text()
 	htmlElement = htmlElement:selectFirst("div.text-left")
 	-- Chapter title inserted before chapter text
-	htmlElement:child(0):before("<h1>" .. title .. "</h1>");
+	htmlElement:prepend("<h1>" .. title .. "</h1>");
 
 	-- Remove/modify unwanted HTML elements to get a clean webpage.
 	htmlElement:select("div.lnbad-tag"):remove() -- LightNovelBastion text size
