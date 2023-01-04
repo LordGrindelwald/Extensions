@@ -1,9 +1,9 @@
--- {"id":2672381,"ver":"1.0.0","libVer":"1.0.0","author":"Doomsdayrs","dep":["Madara>=2.2.0"]}
+-- {"id":2672381,"ver":"1.0.1","libVer":"1.0.0","author":"Doomsdayrs","dep":["Madara>=2.2.0"]}
 
-return Require("Madara")("https://latestnovel.net/",{
+return Require("Madara")("https://manynovel.net/",{
 	id = 2672381,
-	name = "LatestNovel",
-	imageURL = "https://latestnovel.net/wp-content/themes/madara/images/logo.png",
+	name = "Many Novel",
+	imageURL = "https://manynovel.net/wp-content/themes/madara/images/logo.png",
 
 	-- defaults values
 	latestNovelSel = "div.col-12.col-md-6.badge-pos-1",
