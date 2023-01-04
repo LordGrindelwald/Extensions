@@ -1,4 +1,4 @@
--- {"id":1783,"ver":"1.0.0","libVer":"1.0.0","author":"Xanvial","dep":["Madara>=2.4.0"]}
+-- {"id":1783,"ver":"1.0.1","libVer":"1.0.0","author":"Xanvial","dep":["Madara>=2.4.0"]}
 
 return Require("Madara")("https://asuralightnovel.com",{
 	id = 1783,
@@ -7,6 +7,9 @@ return Require("Madara")("https://asuralightnovel.com",{
 
 	searchHasOper = true,
 	ajaxUsesFormData = true,
+	parseNovelDescription = function(doc)
+		return doc:selectFirst("summary__content"):text()
+	end,
 
 	genres = {
 		"Action",

@@ -26,7 +26,7 @@
     },
     {
       "name": "Madara",
-      "ver": "2.5.0"
+      "ver": "2.6.0"
     }
   ],
   "scripts": [
@@ -396,7 +396,7 @@
       "imageURL": "https://asuralightnovel.com/wp-content/uploads/2017/10/asura-light-novel-logo-4-e1627846850601.png",
       "id": 1783,
       "lang": "en",
-      "ver": "1.0.0",
+      "ver": "1.0.1",
       "libVer": "1.0.0",
       "md5": ""
     },
