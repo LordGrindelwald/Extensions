@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.1","libVer":"1.0.0","author":"Amelia Magdovitz"}
+-- {"id":89283,"ver":"0.0.2","libVer":"1.0.0","author":"Amelia Magdovitz"}
 
 
 --- @type int
@@ -158,64 +158,65 @@ local function expandURL(url, type)
 
     return baseURL.."/series/"..url
 end
-    --- Get a chapter passage based on its chapterURL.
-    ---
-    --- Required.
-    ---
-    --- @param chapterURL string The chapters shrunken URL.
-    --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
-    local function getPassage(chapterURL)
-        local url = expandURL(chapterURL, KEY_CHAPTER_URL)
+--- Get a chapter passage based on its chapterURL.
+---
+--- Required.
+---
+--- @param chapterURL string The chapters shrunken URL.
+--- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
+local function getPassage(chapterURL)
+    local url = expandURL(chapterURL, KEY_CHAPTER_URL)
 
-        --- Chapter page, extract info from it.
-        local document = GETDocument(url)
+    --- Chapter page, extract info from it.
+    local document = GETDocument(url)
 
-        return ""
-    end
+    return ""
+end
 
-    --- Load info on a novel.
-    ---
-    --- Required.
-    ---
-    --- @param novelURL string shrunken novel url.
-    --- @return NovelInfo
-    local function parseNovel(novelURL)
-        local url = shrinkURL(novelURL, KEY_NOVEL_URL)
+--- Get the novel information
+--- @param novelURL string shrunken novel url.
+--- @return NovelInfo
+local function parseNovel(novelURL)
+    local url = expandURL(novelURL, KEY_NOVEL_URL)
 
-        --- Novel page, extract info from it.
-        local document = GETDocument(url)
+    --- Novel page, extract info from it.
+    local document = GETDocument(url):selectFirst("body")
 
-        return NovelInfo()
-    end
+    return NovelInfo {
+    title = document:selectFirst('h1'):text(),
+    imageURL = baseURL..document:selectFirst('.w-full.gap-y-2'):selectFirst("img"):attr("src"),
+    description = document:selectFirst('div.rounded-xl'):text(),
+    authors = { document:selectFirst("p:nth-of-type(3) > strong"):text() }}
+end
 
-    --- Called to search for novels off a website.
-    ---
-    --- Optional, But required if [hasSearch] is true.
-    ---
-    --- @param data table @of applied filter values [QUERY] is the search query, may be empty.
-    --- @return Novel[] | Array
-    local function search(data)
-        --- Not required if search is not incrementing.
-        --- @type int
-        local page = data[PAGE]
+--- Called to search for novels off a website.
+---
+--- Optional, But required if [hasSearch] is true.
+---
+--- @param data table @of applied filter values [QUERY] is the search query, may be empty.
+--- @return Novel[] | Array
+local function search(data)
+    --- Not required if search is not incrementing.
+    --- @type int
+    local page = data[PAGE]
 
-        --- Get the user text query to pass through.
-        --- @type string
-        local query = data[QUERY]
+    --- Get the user text query to pass through.
+    --- @type string
+    local query = data[QUERY]
 
-        return {}
-    end
+    return {}
+end
 
-    --- Called when a user changes a setting and when the extension is being initialized.
-    ---
-    --- Optional, But required if [settingsModel] is not empty.
-    ---
-    --- @param id int Setting key as stated in [settingsModel].
-    --- @param value any Value pertaining to the type of setting. Int/Boolean/String.
-    --- @return void
-    local function updateSetting(id, value)
-        settings[id] = value
-    end
+--- Called when a user changes a setting and when the extension is being initialized.
+---
+--- Optional, But required if [settingsModel] is not empty.
+---
+--- @param id int Setting key as stated in [settingsModel].
+--- @param value any Value pertaining to the type of setting. Int/Boolean/String.
+--- @return void
+local function updateSetting(id, value)
+    settings[id] = value
+end
 
 -- Return all properties in a lua table.
 return {
