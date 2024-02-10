@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.2","libVer":"1.0.0","author":"Amelia Magdovitz"}
+-- {"id":89283,"ver":"0.0.3","libVer":"1.0.0","author":"Amelia Magdovitz"}
 
 
 --- @type int
@@ -53,7 +53,7 @@ local isSearchIncrementing = false
 ---
 --- @type Filter[] | Array
 local searchFilters = {
-    --It has them, but will be implemented later
+    --It has them, but will be implemented later. Note that the website does not have a search page, and filters are only applied in cases where there is no search (to user facing. Have not investigated the pseudo-api)
 }
 
 --- Internal settings store.
@@ -89,40 +89,27 @@ local chapterType = ChapterType.HTML
 --- @type number
 local startIndex = 1
 
---- Listings that users can navigate in Shosetsu.
----
+
+local function getListings()
+    local novelDoc = GETDocument(baseURL..'/novels')
+    novelDoc = novelDoc:select("div.container:nth-of-type(4)")
+    local novels = {}
+    print(novelDoc)
+    novelDoc:traverse(NodeVisitor(function(v)
+        local a = v:selectFirst("a")
+        novels[#novels+1] = Novel{
+            title = a:text(),
+            link = baseURL..a:attr("href"),
+            imageURL = baseURL..v:selectFirst(img):attr('src')
+        }
+    end))
+    return novels
+end
 --- Required, 1 value at minimum.
----
---- @type Listing[] | Array
-local listings = {
-    Listing(name, false, function(data)
-        -- Many sites use the baseURL + some path, you can perform the URL construction here.
-        -- You can also extract query data from [data]. But do perform a null check, for safety.
-        local url = baseURL
+-- TODO Figure out how to deal with clientside rendering. NextJS
+--local listings = getListings()
+local listings = {Novel{title = "dummy", link="https://dummy.com", imageURL = "https://dummy.com/images/x.png"}}
 
-        local document = GETDocument(url)
-
-        return {}
-    end),
-    Listing("Something (with incrementing pages!)", true, function(data)
-        --- @type int
-        local page = data[PAGE]
-        -- Previous documentation, + appending page
-        local url = baseURL .. "?p=" .. page
-
-        local document = GETDocument(url)
-
-        return {}
-    end),
-    Listing("Something without any input", false, function()
-        -- Previous documentation, except no data or appending.
-        local url = baseURL
-
-        local document = GETDocument(url)
-
-        return {}
-    end)
-}
 
 --- Shrink the website url down. This is for space saving purposes.
 ---
