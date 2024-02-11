@@ -27,6 +27,10 @@
     {
       "name": "Madara",
       "ver": "2.9.0"
+    },
+    {
+      "name": "json.lua",
+      "ver": "0.1.2"
     }
   ],
   "scripts": [
@@ -726,7 +730,7 @@
       "imageURL": "https://wetriedtls.site/favicon.ico",
       "id": 89283,
       "lang": "en",
-      "ver": "0.0.3",
+      "ver": "0.0.4",
       "libVer": "1.0.0",
       "md5": ""
     }

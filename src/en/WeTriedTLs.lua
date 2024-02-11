@@ -1,5 +1,5 @@
--- {"id":89283,"ver":"0.0.3","libVer":"1.0.0","author":"Amelia Magdovitz"}
-
+-- {"id":89283,"ver":"0.0.4","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["json"]}
+local Json = Require("json")
 
 --- @type int
 local id = 89283
@@ -90,27 +90,6 @@ local chapterType = ChapterType.HTML
 local startIndex = 1
 
 
-local function getListings()
-    local novelDoc = GETDocument(baseURL..'/novels')
-    novelDoc = novelDoc:select("div.container:nth-of-type(4)")
-    local novels = {}
-    print(novelDoc)
-    novelDoc:traverse(NodeVisitor(function(v)
-        local a = v:selectFirst("a")
-        novels[#novels+1] = Novel{
-            title = a:text(),
-            link = baseURL..a:attr("href"),
-            imageURL = baseURL..v:selectFirst(img):attr('src')
-        }
-    end))
-    return novels
-end
---- Required, 1 value at minimum.
--- TODO Figure out how to deal with clientside rendering. NextJS
---local listings = getListings()
-local listings = {Novel{title = "dummy", link="https://dummy.com", imageURL = "https://dummy.com/images/x.png"}}
-
-
 --- Shrink the website url down. This is for space saving purposes.
 ---
 --- Required.
@@ -145,9 +124,52 @@ local function expandURL(url, type)
 
     return baseURL.."/series/"..url
 end
+
+
+
+--- Crude means of grabbing and combining a query
+--- @param tags string The query tags in the form of &tag1=xyz&tag2=zyx...
+--- @return table The query JSON in the form of a table. Data section is included in case it will be needed
+local function query(tags)
+    local page = 0
+    local times = 1
+    local json = {}
+    repeat
+        page = page+1
+        local queryDocument = GETDocument('https://api.wetriedtls.site/query?page='..page..tags) --..'&visibility=Public&series_type=Novel')
+        if times > 1 then
+            for _, v in ipairs(Json.decode(queryDocument:selectFirst('body'):text())['data']) do
+                json['data'][#json['data']+1] = v
+            end
+        else
+            json = Json.decode(queryDocument:selectFirst('body'):text())
+        end
+        times = math.ceil(json['meta']['total']/json['meta']['per_page'])
+    until page >= times
+    return json
+end
+
+local function getListings()
+    local queryTable=query('&visibility=Public&series_type=Novel')
+    local novels = {}
+    for _, v in ipairs(queryTable['data']) do
+        local novelInfo = {
+            title    = v['title'],
+            link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
+            imageURL = v['thumbnail']
+        }
+        novels[#novels+1]=Novel(novelInfo)
+    end
+    return novels
+end
+
+local listings = getListings()
+
+
+
 --- Get a chapter passage based on its chapterURL.
 ---
---- Required.
+--- TODO Implement
 ---
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
@@ -161,6 +183,8 @@ local function getPassage(chapterURL)
 end
 
 --- Get the novel information
+---
+--- TODO implement with query
 --- @param novelURL string shrunken novel url.
 --- @return NovelInfo
 local function parseNovel(novelURL)
@@ -174,35 +198,6 @@ local function parseNovel(novelURL)
     imageURL = baseURL..document:selectFirst('.w-full.gap-y-2'):selectFirst("img"):attr("src"),
     description = document:selectFirst('div.rounded-xl'):text(),
     authors = { document:selectFirst("p:nth-of-type(3) > strong"):text() }}
-end
-
---- Called to search for novels off a website.
----
---- Optional, But required if [hasSearch] is true.
----
---- @param data table @of applied filter values [QUERY] is the search query, may be empty.
---- @return Novel[] | Array
-local function search(data)
-    --- Not required if search is not incrementing.
-    --- @type int
-    local page = data[PAGE]
-
-    --- Get the user text query to pass through.
-    --- @type string
-    local query = data[QUERY]
-
-    return {}
-end
-
---- Called when a user changes a setting and when the extension is being initialized.
----
---- Optional, But required if [settingsModel] is not empty.
----
---- @param id int Setting key as stated in [settingsModel].
---- @param value any Value pertaining to the type of setting. Int/Boolean/String.
---- @return void
-local function updateSetting(id, value)
-    settings[id] = value
 end
 
 -- Return all properties in a lua table.
