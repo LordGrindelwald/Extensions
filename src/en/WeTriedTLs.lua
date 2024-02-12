@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.4","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["json"]}
+-- {"id":89283,"ver":"0.0.5","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["json"]}
 local Json = Require("json")
 
 --- @type int
@@ -63,10 +63,7 @@ local searchFilters = {
 ---
 --- Notice, each key is surrounded by "[]" and the value is on the right side.
 --- @type table
-local settings = {
-
-
-}
+local settings = {}
 
 --- Settings model for Shosetsu to render.
 ---
@@ -150,26 +147,23 @@ local function query(tags)
 end
 
 local function getListings()
+
     local queryTable=query('&visibility=Public&series_type=Novel')
     local novels = {}
     for _, v in ipairs(queryTable['data']) do
-        local novelInfo = {
-            title    = v['title'],
-            link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
-            imageURL = v['thumbnail']
-        }
-        novels[#novels+1]=Novel(novelInfo)
+        if v then
+            novels[#novels]= Novel{
+                title    = v['title'],
+                link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
+                imageURL = v['thumbnail']
+            }
+        end
     end
-    return novels
 end
 
-local listings = getListings()
-
-
+local listings = {getListings()}
 
 --- Get a chapter passage based on its chapterURL.
----
---- TODO Implement
 ---
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
@@ -178,8 +172,7 @@ local function getPassage(chapterURL)
 
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-
-    return ""
+    return tostring(document:selectFirst("#reader-container"))
 end
 
 --- Get the novel information
@@ -195,7 +188,7 @@ local function parseNovel(novelURL)
 
     return NovelInfo {
     title = document:selectFirst('h1'):text(),
-    imageURL = baseURL..document:selectFirst('.w-full.gap-y-2'):selectFirst("img"):attr("src"),
+    imageURL = baseURL..document:selectFirst('img.rounded'):attr("src"),
     description = document:selectFirst('div.rounded-xl'):text(),
     authors = { document:selectFirst("p:nth-of-type(3) > strong"):text() }}
 end
@@ -221,10 +214,4 @@ return {
     settings = settingsModel,
     chapterType = chapterType,
     startIndex = startIndex,
-
-    -- Required if [hasSearch] is true.
-    search = search,
-
-    -- Required if [settings] is not empty
-    updateSetting = updateSetting,
 }
