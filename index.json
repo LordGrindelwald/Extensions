@@ -27,10 +27,6 @@
     {
       "name": "Madara",
       "ver": "2.9.0"
-    },
-    {
-      "name": "json",
-      "ver": "0.1.2"
     }
   ],
   "scripts": [

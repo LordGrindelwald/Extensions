@@ -1,5 +1,5 @@
--- {"id":89283,"ver":"0.0.5","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["json"]}
-local Json = Require("json")
+-- {"id":89283,"ver":"0.0.5","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+local Json = Require("dkjson")
 
 --- @type int
 local id = 89283
