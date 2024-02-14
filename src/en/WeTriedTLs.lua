@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.6","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.0.7","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -152,13 +152,13 @@ local function query(tags)
     local json = {}
     repeat
         page = page+1
-        local queryDocument = GETDocument('https://api.wetriedtls.site/query?perPage=999&visibility=Public&series_type=Novel&page='..page..tags)
+        local queryDocument = Json.GET('https://api.wetriedtls.site/query?perPage=999&visibility=Public&series_type=Novel&page='..page..tags)
         if times > 1 then
-            for _, v in ipairs(Json.decode(queryDocument:selectFirst('body'):text())['data']) do
+            for _, v in ipairs(queryDocument['data']) do
                 json['data'][#json['data']+1] = v
             end
         else
-            json = Json.decode(queryDocument:selectFirst('body'):text())
+            json = queryDocument
         end
         times = math.ceil(json['meta']['total']/json['meta']['per_page'])
     until page >= times
@@ -201,21 +201,17 @@ end
 local function getListings()
     return Listing("all", false, function(data)
         local queryTable = query(makeFilterString(data))
-        local novels = {}
-        for _, v in ipairs(queryTable['data']) do
-            if v then
-                novels[#novels]= Novel{
-                    title    = v['title'],
-                    link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
-                    imageURL = v['thumbnail']
-                }
-            end
-        end
-        return novels
+        return map(queryTable['data'],function(v)
+            return Novel{
+                title    = v['title'],
+                link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
+                imageURL = v['thumbnail']
+            }
+        end)
     end)
 end
 
-local listings = { getListings()}
+local listings = {getListings()}
 
 --- Get a chapter passage based on its chapterURL.
 ---
