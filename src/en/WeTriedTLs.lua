@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.1.1","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.1.2","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -255,26 +255,33 @@ end
 --- @return NovelInfo
 local function parseNovel(novelURL, loadChapters)
     local url = baseAPIURL..'/series/'..novelURL
-
-    --- Novel page, extract info from it.
     local document = Json.GET(url)
+    print(Json.encode(document))
 
     local novelInfo = NovelInfo {
     title = document['title'],
-    imageURL = baseURL..GETDocument(expandURL(novelURL)):selectFirst('body'):selectFirst('img.rounded'):attr("src"),
-    description = document['description']:gsub("<%p%w+>",""):gsub("<p>", ""),
-    authors = { document['author'] },
-    genres = map(document['tags'],function(v) return v["name"] end)
+    imageURL = baseURL..GETDocument(expandURL(novelURL)):selectFirst('body'):selectFirst('img.rounded'):attr("src")
     }
-
+    if document['author'] then
+        novelInfo.setAuthors(novelInfo, { document['author'] })
+    end
+    if document['tags'] then
+        novelInfo.setTags(novelInfo,map(document['tags'],function(v) return v["name"] end))
+    end
+    if document['description'] then
+        novelInfo:setDescription(document['description']:gsub("<%p%w+>",""):gsub("<p>", ""))
+    end
     if loadChapters then
         novelInfo:setChapters(AsList(map(combineChapters(document), function(v)
-            return NovelChapter {
+            local novelChapter= NovelChapter {
                 link = shrinkURL(baseURL..'/series/'..novelURL.."/"..v['chapter_slug'], KEY_CHAPTER_URL),
                 title = v['chapter_title'],
-                order = tonumber(v['index']),
-                release = v['created_at']
+                order = tonumber(v['index'])
             }
+            if v['created_at'] then
+                novelChapter.setRelease(novelChapter, v['created_at'])
+            end
+            return novelChapter
         end)))
     end
 
