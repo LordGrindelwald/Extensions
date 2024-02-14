@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.7","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.0.8","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -116,6 +116,9 @@ local startIndex = 1
 local function shrinkURL(url, type)
     -- Novel looks like       baseURL/series/{name}
     -- Chapter looks like     baseURL/series/{name}/chapter-{num}
+    if string.sub(url, 0,4)~="http" then
+        return url
+    end
     url = url:gsub(baseURL.."/series/", "")
     if type == KEY_CHAPTER_URL then
         return url:gsub("chapter-", "")
@@ -133,6 +136,9 @@ end
 --- @param type int Either KEY_CHAPTER_URL or KEY_NOVEL_URL.
 --- @return string Full URL.
 local function expandURL(url, type)
+    if string.sub(url, 0,4)=="http" then
+        return url
+    end
     if type == KEY_CHAPTER_URL then
         -- One slash is left, so we will use it as the target
         url = url:gsub("/","/chapter-")
