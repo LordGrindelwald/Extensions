@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.8","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.1.0","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -18,6 +18,8 @@ local name = "We Tried Translations"
 ---
 --- @type string
 local baseURL = "https://wetriedtls.site"
+
+local baseAPIURL = "https://api.wetriedtls.site"
 
 --- URL of the logo.
 ---
@@ -121,8 +123,10 @@ local function shrinkURL(url, type)
     end
     url = url:gsub(baseURL.."/series/", "")
     if type == KEY_CHAPTER_URL then
-        return url:gsub("chapter-", "")
+        return url:gsub("chapter%-", "")
+
         -- Note that there is only one slash left, right before the number
+
     else
         return url
     end
@@ -140,10 +144,10 @@ local function expandURL(url, type)
         return url
     end
     if type == KEY_CHAPTER_URL then
-        -- One slash is left, so we will use it as the target
+
+        -- One slash is left, so we will use it as the
         url = url:gsub("/","/chapter-")
     end
-
     return baseURL.."/series/"..url
 end
 
@@ -210,7 +214,7 @@ local function getListings()
         return map(queryTable['data'],function(v)
             return Novel{
                 title    = v['title'],
-                link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
+                link     = v["series_slug"],
                 imageURL = v['thumbnail']
             }
         end)
@@ -219,34 +223,63 @@ end
 
 local listings = {getListings()}
 
+---@param novelJSON table
+---@return table
+local function combineChapters(novelJSON)
+    local chapterList = {}
+    for _, v in ipairs(novelJSON['seasons']) do
+        for _, u in ipairs(v['chapters'])do
+            chapterList[#chapterList+1]=u
+        end
+    end
+    return chapterList
+end
+
+
 --- Get a chapter passage based on its chapterURL.
 ---
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
     local url = expandURL(chapterURL, KEY_CHAPTER_URL)
-
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-    return tostring(document:selectFirst("#reader-container"))
+    print(document:selectFirst("#reader-container")) --nil
+    return document:selectFirst("#reader-container"):text()
 end
 
 --- Get the novel information
 ---
 --- TODO implement with query
 --- @param novelURL string shrunken novel url.
+--- @param loadChapters boolean if to grab chapters
 --- @return NovelInfo
-local function parseNovel(novelURL)
-    local url = expandURL(novelURL, KEY_NOVEL_URL)
+local function parseNovel(novelURL, loadChapters)
+    local url = baseAPIURL..'/series/'..novelURL
 
     --- Novel page, extract info from it.
-    local document = GETDocument(url):selectFirst("body")
+    local document = Json.GET(url)
 
-    return NovelInfo {
-    title = document:selectFirst('h1'):text(),
-    imageURL = baseURL..document:selectFirst('img.rounded'):attr("src"),
-    description = document:selectFirst('div.rounded-xl'):text(),
-    authors = { document:selectFirst("p:nth-of-type(3) > strong"):text() }}
+    local novelInfo = NovelInfo {
+    title = document['title'],
+    imageURL = baseURL..GETDocument(expandURL(novelURL)):selectFirst('body'):selectFirst('img.rounded'):attr("src"),
+    description = document['description']:gsub("<%p%w+>",""):gsub("<p>", ""),
+    authors = { document['author'] },
+    genres = map(document['tags'],function(v) return v["name"] end)
+    }
+
+    if loadChapters then
+        novelInfo:setChapters(AsList(map(combineChapters(document), function(v)
+            return NovelChapter {
+                link = shrinkURL(baseURL..'/series/'..novelURL.."/"..v['chapter_slug'], KEY_CHAPTER_URL),
+                title = v['chapter_title'],
+                order = tonumber(v['index']),
+                release = v['created_at']
+            }
+        end)))
+    end
+
+    return novelInfo
 end
 
 -- Return all properties in a lua table.
