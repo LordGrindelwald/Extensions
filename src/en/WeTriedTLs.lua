@@ -174,7 +174,7 @@ local function makeFilterString(data)
         fS=fS.."&order=asec"
     end
     if data[12] then
-        fS=fS.."&orderBy"
+        fS=fS.."&orderBy="
         if data[12] == 1 then
             fS=fS.."latest"
         elseif data[12] == 2 then
