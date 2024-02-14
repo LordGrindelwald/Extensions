@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.0.5","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.0.6","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -38,7 +38,7 @@ local hasCloudFlare = false
 --- Optional, Default is true.
 ---
 --- @type boolean
-local hasSearch = false --it has them, but too few novels to matter, will implement later
+local hasSearch = false --Implemented as filter
 
 --- If the websites search increments or not.
 ---
@@ -53,7 +53,26 @@ local isSearchIncrementing = false
 ---
 --- @type Filter[] | Array
 local searchFilters = {
-    --It has them, but will be implemented later. Note that the website does not have a search page, and filters are only applied in cases where there is no search (to user facing. Have not investigated the pseudo-api)
+    TextFilter(14, "Keyword (title)"), --&query_string=
+    FilterGroup("Genres (AND)", { --Yes the ids are like this in the api. WHY &tags_ids=[{tag},{tag}...]
+        CheckboxFilter(1, "Action Fantasy"),
+        CheckboxFilter(3, "Romance"),
+        CheckboxFilter(4, "Drama"),
+        CheckboxFilter(5, "Thriller"),
+        CheckboxFilter(6, "Horror"),
+        CheckboxFilter(7, "Comedy"),
+        CheckboxFilter(8, "Science Fiction"),
+        CheckboxFilter(9, "Slice of Life"),
+        CheckboxFilter(10, "Mystery"),
+        CheckboxFilter(11, "Martial Arts"),
+    }),
+    DropdownFilter(12, "Order by", { --&orderBy=
+        "Trending", --total_views   (0)
+        "Updated at", --latest      (1)
+        "Created at", --created_at  (2)
+        "Title" --title             (3)
+    } ),
+    CheckboxFilter(13, "Ascending"), --&order=asec
 }
 
 --- Internal settings store.
@@ -133,7 +152,7 @@ local function query(tags)
     local json = {}
     repeat
         page = page+1
-        local queryDocument = GETDocument('https://api.wetriedtls.site/query?page='..page..tags) --..'&visibility=Public&series_type=Novel')
+        local queryDocument = GETDocument('https://api.wetriedtls.site/query?perPage=999&visibility=Public&series_type=Novel&page='..page..tags)
         if times > 1 then
             for _, v in ipairs(Json.decode(queryDocument:selectFirst('body'):text())['data']) do
                 json['data'][#json['data']+1] = v
@@ -146,22 +165,57 @@ local function query(tags)
     return json
 end
 
-local function getListings()
 
-    local queryTable=query('&visibility=Public&series_type=Novel')
-    local novels = {}
-    for _, v in ipairs(queryTable['data']) do
-        if v then
-            novels[#novels]= Novel{
-                title    = v['title'],
-                link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
-                imageURL = v['thumbnail']
-            }
+local function makeFilterString(data)
+    local fS = ""
+    --keyword
+    fS = fS.."&query_string="..data[14]
+    if data[13] then --Ascending checkbox
+        fS=fS.."&order=asec"
+    end
+    if data[12] then
+        fS=fS.."&orderBy"
+        if data[12] == 1 then
+            fS=fS.."latest"
+        elseif data[12] == 2 then
+            fS=fS.."created_at"
+        elseif data[12] == 3 then
+        fS=fS.."title"
+        else
+            fS=fS.."total_views"
         end
     end
+    local tags = {}
+
+    for i, v in ipairs(data) do
+        if i > 0 and i < 12 then
+            if v then
+                tags[#tags+1]=i
+            end
+        end
+    end
+    fS=fS.."&tags_ids="..Json.encode(tags)
+    return fS
 end
 
-local listings = {getListings()}
+local function getListings()
+    return Listing("all", false, function(data)
+        local queryTable = query(makeFilterString(data))
+        local novels = {}
+        for _, v in ipairs(queryTable['data']) do
+            if v then
+                novels[#novels]= Novel{
+                    title    = v['title'],
+                    link     = expandURL(v["series_slug"], KEY_NOVEL_URL),
+                    imageURL = v['thumbnail']
+                }
+            end
+        end
+        return novels
+    end)
+end
+
+local listings = { getListings()}
 
 --- Get a chapter passage based on its chapterURL.
 ---
