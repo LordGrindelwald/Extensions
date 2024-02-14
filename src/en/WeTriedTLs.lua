@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.1.0","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"0.1.1","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -244,8 +244,7 @@ local function getPassage(chapterURL)
     local url = expandURL(chapterURL, KEY_CHAPTER_URL)
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-    print(document:selectFirst("#reader-container")) --nil
-    return document:selectFirst("#reader-container"):text()
+    return tostring(document:selectFirst("#reader-container"))
 end
 
 --- Get the novel information
