@@ -1,4 +1,4 @@
--- {"id":89283,"ver":"0.1.2","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
+-- {"id":89283,"ver":"1.0.0","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson"]}
 local Json = Require("dkjson")
 
 --- @type int
@@ -40,7 +40,7 @@ local hasCloudFlare = false
 --- Optional, Default is true.
 ---
 --- @type boolean
-local hasSearch = false --Implemented as filter
+local hasSearch = false
 
 --- If the websites search increments or not.
 ---
@@ -57,16 +57,16 @@ local isSearchIncrementing = false
 local searchFilters = {
     TextFilter(14, "Keyword (title)"), --&query_string=
     FilterGroup("Genres (AND)", { --Yes the ids are like this in the api. WHY &tags_ids=[{tag},{tag}...]
-        CheckboxFilter(1, "Action Fantasy"),
-        CheckboxFilter(3, "Romance"),
-        CheckboxFilter(4, "Drama"),
-        CheckboxFilter(5, "Thriller"),
-        CheckboxFilter(6, "Horror"),
-        CheckboxFilter(7, "Comedy"),
-        CheckboxFilter(8, "Science Fiction"),
-        CheckboxFilter(9, "Slice of Life"),
-        CheckboxFilter(10, "Mystery"),
-        CheckboxFilter(11, "Martial Arts"),
+        CheckboxFilter(101, "Action Fantasy"),
+        CheckboxFilter(103, "Romance"),
+        CheckboxFilter(104, "Drama"),
+        CheckboxFilter(105, "Thriller"),
+        CheckboxFilter(106, "Horror"),
+        CheckboxFilter(107, "Comedy"),
+        CheckboxFilter(108, "Science Fiction"),
+        CheckboxFilter(109, "Slice of Life"),
+        CheckboxFilter(110, "Mystery"),
+        CheckboxFilter(111, "Martial Arts"),
     }),
     DropdownFilter(12, "Order by", { --&orderBy=
         "Trending", --total_views   (0)
@@ -77,6 +77,7 @@ local searchFilters = {
     CheckboxFilter(13, "Ascending"), --&order=asec
 }
 
+
 --- Internal settings store.
 ---
 --- Completely optional.
@@ -84,14 +85,18 @@ local searchFilters = {
 ---
 --- Notice, each key is surrounded by "[]" and the value is on the right side.
 --- @type table
-local settings = {}
+local settings = {
+    [1] = false,
+}
 
 --- Settings model for Shosetsu to render.
 ---
 --- Optional, Default is empty.
 ---
 --- @type Filter[] | Array
-local settingsModel = {}
+local settingsModel = {
+    CheckboxFilter(1, "List chapters that cost money")
+}
 
 --- ChapterType provided by the extension.
 ---
@@ -106,6 +111,17 @@ local chapterType = ChapterType.HTML
 ---
 --- @type number
 local startIndex = 1
+
+--- Called when a user changes a setting and when the extension is being initialized.
+---
+--- Optional, But required if [settingsModel] is not empty.
+---
+--- @param id int Setting key as stated in [settingsModel].
+--- @param value any Value pertaining to the type of setting. Int/Boolean/String.
+--- @return void
+local function updateSetting(id, value)
+    settings[id] = value
+end
 
 
 --- Shrink the website url down. This is for space saving purposes.
@@ -190,20 +206,19 @@ local function makeFilterString(data)
         elseif data[12] == 2 then
             fS=fS.."created_at"
         elseif data[12] == 3 then
-        fS=fS.."title"
+            fS=fS.."title"
         else
             fS=fS.."total_views"
         end
     end
     local tags = {}
-
-    for i, v in ipairs(data) do
-        if i > 0 and i < 12 then
-            if v then
-                tags[#tags+1]=i
-            end
+    local filterList = {101,103,104,105,106,107,108,109,110,111}
+    for _, v in ipairs(filterList) do
+        if data[v] then
+            tags[#tags+1]=v-100
         end
     end
+    print(Json.encode(tags))
     fS=fS.."&tags_ids="..Json.encode(tags)
     return fS
 end
@@ -229,7 +244,9 @@ local function combineChapters(novelJSON)
     local chapterList = {}
     for _, v in ipairs(novelJSON['seasons']) do
         for _, u in ipairs(v['chapters'])do
-            chapterList[#chapterList+1]=u
+            if u['price'] == 0 or settings[1] then
+                chapterList[#chapterList+1]=u
+            end
         end
     end
     return chapterList
@@ -244,6 +261,11 @@ local function getPassage(chapterURL)
     local url = expandURL(chapterURL, KEY_CHAPTER_URL)
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
+    if document:selectFirst("h5.font-bold") then
+        if document:selectFirst("h5.font-bold"):text() == 'This chapter is premium!'then
+            return "<h1>This chapter is a paid chapter. You might be able to log in via the webview and purchase the chapter to display it here.</h1>"
+        end
+    end
     return tostring(document:selectFirst("#reader-container"))
 end
 
@@ -263,10 +285,10 @@ local function parseNovel(novelURL, loadChapters)
     imageURL = baseURL..GETDocument(expandURL(novelURL)):selectFirst('body'):selectFirst('img.rounded'):attr("src")
     }
     if document['author'] then
-        novelInfo.setAuthors(novelInfo, { document['author'] })
+        novelInfo:setAuthors({ document['author'] })
     end
     if document['tags'] then
-        novelInfo.setTags(novelInfo,map(document['tags'],function(v) return v["name"] end))
+        novelInfo:setTags(map(document['tags'],function(v) return v["name"] end))
     end
     if document['description'] then
         novelInfo:setDescription(document['description']:gsub("<%p%w+>",""):gsub("<p>", ""))
@@ -275,11 +297,15 @@ local function parseNovel(novelURL, loadChapters)
         novelInfo:setChapters(AsList(map(combineChapters(document), function(v)
             local novelChapter= NovelChapter {
                 link = shrinkURL(baseURL..'/series/'..novelURL.."/"..v['chapter_slug'], KEY_CHAPTER_URL),
-                title = v['chapter_title'],
                 order = tonumber(v['index'])
             }
             if v['created_at'] then
-                novelChapter.setRelease(novelChapter, v['created_at'])
+                novelChapter:setRelease(v['created_at'])
+            end
+            if v["price"] == 0 then
+                novelChapter:setTitle(v['chapter_title'])
+            else
+                novelChapter:setTitle("(Locked)"..v['chapter_title'])
             end
             return novelChapter
         end)))
@@ -309,4 +335,5 @@ return {
     settings = settingsModel,
     chapterType = chapterType,
     startIndex = startIndex,
+    updateSetting = updateSetting
 }
