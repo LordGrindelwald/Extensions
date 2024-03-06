@@ -1,4 +1,4 @@
--- {"id":36833,"ver":"1.0.14","libVer":"1.0.0","author":"TechnoJo4","dep":["url>=1.0.0","CommonCSS>=1.0.0"]}
+-- {"id":36833,"ver":"1.0.15","libVer":"1.0.0","author":"TechnoJo4","dep":["url>=1.0.0","CommonCSS>=1.0.0"]}
 
 local baseURL = "https://www.royalroad.com"
 local qs = Require("url").querystring
@@ -358,16 +358,39 @@ return {
 	end,
 
 	getPassage = function(url)
-		local chap = GETDocument(expandURL(url)):selectFirst(".chapter-page")
+		local chap = GETDocument(expandURL(url))
+		local head = chap:selectFirst("head")
+		chap = chap:selectFirst(".chapter-page")
 		local title = chap:selectFirst(".fic-header h1"):text()
 		chap = chap:selectFirst(".chapter-content")
 
 		-- insert title at start of chapter
 		chap:prepend("<h1>" .. title .. "</h1>")
 
+		-- find hidden paragraphs
+
+		local hiddenClasses = {}
+		head:traverse(NodeVisitor(function(v)
+			local tag = tostring(v)
+			if v:tagName() == "style" and tag:find("display: none") then
+				-- get the class name
+				local class = string.sub(tag,tag:find("%.%w+{"))
+				-- add it to the list, removing the { and .
+				class = string.gsub(class,"[%.{]","")
+				hiddenClasses[#hiddenClasses+1] = class
+			end
+		end))
+
+
 		-- remove empty paragraphs & forced paragraph indents
 		local toRemove = {}
 		chap:traverse(NodeVisitor(function(v)
+			-- remove hidden paragraphs (pirating warnings)
+			for _, x in ipairs(hiddenClasses) do
+				if v:attr("class")== x then
+					toRemove[#toRemove+1] = v
+				end
+			end
 			-- remove whitespace at the start of the paragraph
 			if v:tagName() == "p" or (v:parent():tagName() == "p" and v:elementSiblingIndex() == 0) then
 				local nodes = v:textNodes()
