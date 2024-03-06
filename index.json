@@ -759,6 +759,17 @@
       "ver": "1.0.1",
       "libVer": "1.0.0",
       "md5": ""
+    },
+    {
+      "name": "Space Battles Creative Writing",
+      "fileName": "SpaceBattles",
+      "imageURL": "https://forums.spacebattles.com/data/svg/2/1/1709013933/2022_favicon_192x192.png",
+      "id": 94593,
+      "lang": "en",
+      "ver": "0.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
+
   ]
 }
