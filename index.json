@@ -759,6 +759,16 @@
       "ver": "1.0.1",
       "libVer": "1.0.0",
       "md5": ""
+    },
+    {
+      "name": "We Tried Translations",
+      "fileName": "WeTriedTLs",
+      "imageURL": "https://wetriedtls.site/favicon.ico",
+      "id": 89283,
+      "lang": "en",
+      "ver": "1.0.0",
+      "libVer": "1.0.0",
+      "md5": ""
     }
   ]
 }
