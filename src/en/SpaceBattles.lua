@@ -1,6 +1,6 @@
--- {"id":94593,"ver":"0.0.1","libVer":"1.0.0","author":"Amelia Magdovitz","dep":["dkjson, url"]}
-local Json = Require("dkjson")
-local URLlib = Require("url")
+-- {"id":94593,"ver":"0.1.0","libVer":"1.0.0","author":"Amelia Magdovitz"}
+
+-- may be possible to convert to a general xenforoforum library
 
 --- Identification number of the extension.
 --- Should be unique. Should be consistent in all references.
@@ -50,14 +50,12 @@ local hasCloudFlare = true
 ---
 --- @type boolean
 local hasSearch = false
---We'll see
 --- If the websites search increments or not.
 ---
 --- Optional, Default is true.
 ---
 --- @type boolean
 local isSearchIncrementing = false
---We'll see
 --- Filters to display via the filter fab in Shosetsu.
 ---
 --- Optional, Default is none.
@@ -145,10 +143,7 @@ local function getListings()
             return mapNotNil(novelsOnPage, function (vv)
 
                 local title = vv:selectFirst(".structItem-title [href]")
-                local image = imageURL
-                if vv:selectFirst("img") then
-                    image = vv:selectFirst("img"):attr("src")
-                end
+                local image = imageURL                                            -- No title images on the page
                 return Novel {
                     title    = title:text(),
                     link     = title:attr("href"),
@@ -194,12 +189,10 @@ end
 --- @param chapterURL string The chapters shrunken URL.
 --- @return string Strings in lua are byte arrays. If you are not outputting strings/html you can return a binary stream.
 local function getPassage(chapterURL)
-    local url = expandURL(chapterURL, KEY_CHAPTER_URL)
-
+    local url = expandURL(chapterURL)
     --- Chapter page, extract info from it.
     local document = GETDocument(url)
-
-    return ""
+    return tostring(document:selectFirst(".bbWrapper"))
 end
 
 --- Load info on a novel.
@@ -216,91 +209,56 @@ local function parseNovel(novelURL, loadChapters)
     local header  = document:selectFirst(".threadmarkListingHeader")
     local header2 = document:selectFirst(".p-body-header")
     local novelInfo =  NovelInfo {
-        title = document:selectFirst(".p-title-value"),
+        title = document:selectFirst(".p-title-value"):text(),
         authors = {header2:selectFirst(".u-concealed.username"):text()}
     }
 
+    local imagePage = imageURL
     if pcall(function() header:selectFirst("img") end) then
-        pcall(function() novelInfo:setImageURL(header:selectFirst("img"):attr("src")) end)
+        pcall(function() imageURL = expandURL(header:selectFirst("img"):attr("src")) end)
     end
+    novelInfo:setImageURL(imagePage)
     if header2:selectFirst(".js-tagList") then
         novelInfo:setTags(mapNotNil(header2:selectFirst(".js-tagList"):select(".tagItem"), function(v)
             return v:text()
         end))
     end
+    pcall (function() novelInfo:setDescription(document:selectFirst(".message-body.threadmarkListingHeader-extraInfoChild"):text()) end)
 
-    -- TODO fix
-    local desc = "There was a problem with getting the description"
-    pcall(function() desc = header2:selectFirst(".bbWrapper"):text() end)
+    if not loadChapters then return novelInfo end
 
-    --- Chapters time
+    local page = 0
+    local pages = 1 -- 50 threadmarks per page
+    local order = 1
+    local chapters = {}
+    repeat
+        page = page+1
+        local chaptersBody = GETDocument(url.."threadmarks?display=page&page="..page)
+        local numThreadmarks = 0
+        if page == 1 then
+            map(chaptersBody:select(".dataList-cell--min"), function(v) -- Lua loops do not work with class Elements
+                if v:text() ~= "Total" then
+                    numThreadmarks = numThreadmarks+tonumber(v:text()) -- I have only seen threads with one user's threadmarks, but there is a chance there are multiple
+                end
+            end)
+            pages = math.ceil(numThreadmarks/50)
+        end
 
+        local chaptersElements = chaptersBody:select(".structItem")
 
-    --- Try to find the info in the original document
-    local hiddenButton = nil
-    pcall(function() hiddenButton = document:selectFirst("#js-XFUniqueId12") end)
-    if hiddenButton then
-        local buttonURL = hiddenButton:attr("data-fetchurl")
-        buttonURL = buttonURL:gsub("&min=1", "&min=-1")
-        local maxloc = buttonURL:find("&max=")
-        maxloc[1] = maxloc[1]+5
-        maxloc[2] = #buttonURL
-        print("hellp")
-        print(buttonURL:sub(maxloc))
-    end
-
-                                                                                    --I have no clue where this token comes from rn
-    local body = "_xfRequestUri=".. URLlib.encode(novelURL) .."&_xfWithData=1&_xfToken=1709821056%2Ce465e9dc1f5fb9cae4219ba2f7df0921&_xfResponseType=json"
-    -- novelURL looks like https://forums.spacebattles.com//threads/demesne-fantasy-comedy-town-building-engineering-dungeon-not-a-litrpg.918789/
-    -- we need https://forums.spacebattles.com/threads/venator-worm-star-wars-crossover.1137160/threadmarks-load-range?threadmark_category_id=1&min=0&max=9999999999999999999999999999999
-    local h = HeadersBuilder()
-    -- gotta get this one too
-    h:set("Cookies", "[{\"name\": \"xf_csrf\",\"value\": \"1sEnrz42Nmag8fX7\"}]")
-    h:set("Cookie",'xf_csrf=1sEnrz42Nmag8fX7')
-    h:add("Accept", "application/json; q=0.01")
-
-    local chapterInfo = Json.POST(url.."threadmarks-load-range?threadmark_category_id=1&min="..min.."&max="..max, body, h:build())
-    if type(chapterInfo) == type("This is a String") then
-        return novelInfo
-    end
-    if chapterInfo["status"] ~= "ok" or loadChapters == false then
-        return novelInfo
-    end
-    local chapterHTML = chapterInfo["html"]["content"]:gsub("\n",""):gsub("\t","")
-
+        map(chaptersElements, function(v) -- Lua loops do not work with class Elements
+            local titleElement = v:selectFirst("a")
+            chapters[#chapters+1] = NovelChapter{
+                link = titleElement:attr("data-preview-url"),
+                order = order,
+                release = v:attr("data-content-date"),
+                title = titleElement:text()
+            }
+            order = order+1
+        end)
+    until page == pages
+    novelInfo:setChapters(chapters)
     return novelInfo
-end
-
-
-
-
---- Called to search for novels off a website.
----
---- Optional, But required if [hasSearch] is true.
----
---- @param data table @of applied filter values [QUERY] is the search query, may be empty.
---- @return Novel[] | Array
-local function search(data)
-    --- Not required if search is not incrementing.
-    --- @type int
-    local page = data[PAGE]
-
-    --- Get the user text query to pass through.
-    --- @type string
-    local query = data[QUERY]
-
-    return {}
-end
-
---- Called when a user changes a setting and when the extension is being initialized.
----
---- Optional, But required if [settingsModel] is not empty.
----
---- @param id int Setting key as stated in [settingsModel].
---- @param value any Value pertaining to the type of setting. Int/Boolean/String.
---- @return void
-local function updateSetting(id, value)
-    settings[id] = value
 end
 
 -- Return all properties in a lua table.
@@ -320,14 +278,6 @@ return {
     hasCloudFlare = hasCloudFlare,
     hasSearch = hasSearch,
     isSearchIncrementing = isSearchIncrementing,
-    searchFilters = searchFilters,
-    settings = settingsModel,
     chapterType = chapterType,
-    startIndex = startIndex,
-
-    -- Required if [hasSearch] is true.
-    search = search,
-
-    -- Required if [settings] is not empty
-    updateSetting = updateSetting,
+    startIndex = startIndex
 }
