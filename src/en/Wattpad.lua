@@ -1,4 +1,4 @@
--- {"id":95556,"ver":"1.0.3","libVer":"1.0.0","author":"Confident-hate"}
+-- {"id":95556,"ver":"1.0.5","libVer":"1.0.0","author":"Confident-hate"}
 local json = Require("dkjson")
 local baseURL = "https://www.wattpad.com"
 
@@ -153,16 +153,22 @@ local function parseNovel(novelURL)
         description = document:selectFirst(".description-text"):text()
     end
 
-    return NovelInfo {
+    local status = NovelStatus.UNKNOWN
+    for _, v in ipairs(mapNotNil(document:select(".story-badges"), function(v) return v end)) do
+        if     v:selectFirst(".icon.completed"):text() == "Complete" then
+            status = NovelStatus.COMPLETED
+        elseif v:selectFirst(".icon.completed"):text() == "Ongoing" then
+            status = NovelStatus.PUBLISHING
+        end
+    end
+
+    local novel = NovelInfo {
         title = document:selectFirst(".story-info .sr-only"):text(),
         description = description,
         imageURL = document:select(".story-cover img"):attr("src"),
-        status = ({
-            Ongoing = NovelStatus.PUBLISHING,
-            Complete = NovelStatus.COMPLETED,
-        })[document:selectFirst(".story-badges .tag-item"):text()],
         authors = { document:selectFirst(".author-info__username"):text() },
         genres = map(document:select(".tag-items li a"), text ),
+        status = status,
         chapters = AsList(
                 map(document:select(".table-of-contents.hidden-xxs ul li"), function(v)
                     local title = v:selectFirst("a .left-container"):text()
@@ -178,6 +184,7 @@ local function parseNovel(novelURL)
                 end)
         )
     }
+    return novel
 end
 
 local function parseListing(listingURL)
