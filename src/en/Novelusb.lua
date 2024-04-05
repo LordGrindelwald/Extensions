@@ -1,4 +1,4 @@
--- {"id":95564,"ver":"1.0.1,"libVer":"1.0.0","author":"Confident-hate"}
+-- {"id":95564,"ver":"1.0.1","libVer":"1.0.0","author":"Confident-hate"}
 
 local baseURL = "https://novelusb.com"
 
