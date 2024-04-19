@@ -24,7 +24,7 @@ local function expandURL(url)
 end
 
 local ORDER_BY_FILTER = 2
-local ORDER_BY_VALUES = { "Rating", "Newly Added", "Latest Update", "Bookmark Count", "All Time Ranking", "Daily Ranking", "Weekly Ranking", "Monthly Ranking", "Best Match"}
+local ORDER_BY_VALUES = { "Newly Added", "Latest Update", "Rating", "Bookmark Count", "All Time Ranking", "Daily Ranking", "Weekly Ranking", "Monthly Ranking", "Best Match"}
 local ORDER_BY_PARAMS = { "&sort=rating", "&sort=novel_new", "&sort=chapter_new", "&sort=bookmark_count", "&sort=views_all", "&sort=views_day", "&sort=views_week", "&sort=views_month", "&sort=best"}
 
 local GENRE_FILTER = 3
