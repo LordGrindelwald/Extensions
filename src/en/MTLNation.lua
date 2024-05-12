@@ -1,6 +1,6 @@
 -- {"id":95568,"ver":"1.0.0","libVer":"1.0.0","author":"Confident-hate"}
 local json = Require("dkjson")
-local baseURL = "https://mtlnation.com"
+local baseURL = "https://mtlarchive.com"
 
 ---@param v Element
 local text = function(v)
@@ -14,13 +14,13 @@ end
 ---@param url string
 ---@param type int
 local function shrinkURL(url)
-    return url:gsub("https://api.mtlnation.com", "")
+    return url:gsub("https://api.mtlarchive.com", "")
 end
 
 ---@param url string
 ---@param type int
 local function expandURL(url)
-    return "https://api.mtlnation.com" .. url
+    return "https://api.mtlarchive.com" .. url
 end
 
 local ORDER_BY_FILTER = 2
@@ -90,7 +90,7 @@ local function search(data)
     if status ~= nil then
         statusValue = STATUS_PARAMS[status+1]
     end
-    local url = "https://api.mtlnation.com/api/v2/novels/?faloo=NaN&max_word_count=0&min_word_count=0" .. page .. "&query=" .. data[QUERY] .. orderValue ..statusValue .. genreValue
+    local url = "https://api.mtlarchive.com/api/v2/novels/?faloo=NaN&max_word_count=0&min_word_count=0" .. page .. "&query=" .. data[QUERY] .. orderValue ..statusValue .. genreValue
     local response = GETDocument(url)
     response = json.decode(response:text())
     return map(response["data"], function(v)
@@ -107,13 +107,13 @@ end
 local function parseNovel(novelURL)
     local response = GETDocument(expandURL(novelURL))
     response = json.decode(response:text()).data
-    local chURL = "https://api.mtlnation.com/api/v2/novels/" .. response.id .. "/chapters/"
+    local chURL = "https://api.mtlarchive.com/api/v2/novels/" .. response.id .. "/chapters/"
     local chResponse = GETDocument(chURL)
     chResponse = json.decode(chResponse:text()).data
     return NovelInfo {
         title = response.title,
         description = "Bookmarked By: " .. response.bookmark_count .. "People\n\n" .. table.concat(map(Document(response.synopsis):select("p"), text), "\n"),
-        imageURL = "https://api.mtlnation.com/media/" .. response.cover,
+        imageURL = "https://api.mtlarchive.com/media/" .. response.cover,
         status = ({
             [1] = NovelStatus.PUBLISHING,
             [2] = NovelStatus.COMPLETED,
@@ -127,7 +127,7 @@ local function parseNovel(novelURL)
                 return NovelChapter {
                     order = v,
                     title = v.title,
-                    link = "https://api.mtlnation.com/api/v2/chapters/" .. response.slug .. "/" .. v.slug
+                    link = "https://api.mtlarchive.com/api/v2/chapters/" .. response.slug .. "/" .. v.slug
                 }
             end)
         )
@@ -141,7 +141,7 @@ local function parseListing(listingURL)
         return Novel {
             title = v.title,
             link = "/api/v2/novels/" .. v.slug,
-            imageURL = "https://api.mtlnation.com/media/" .. v.cover
+            imageURL = "https://api.mtlarchive.com/media/" .. v.cover
         }
     end)
 end
@@ -165,7 +165,7 @@ local function getListing(data)
     if status ~= nil then
         statusValue = STATUS_PARAMS[status+1]
     end
-    local url = "https://api.mtlnation.com/api/v2/novels/?faloo=NaN&max_word_count=0&min_word_count=0" .. page .. "&query=" .. orderValue ..statusValue .. genreValue
+    local url = "https://api.mtlarchive.com/api/v2/novels/?faloo=NaN&max_word_count=0&min_word_count=0" .. page .. "&query=" .. orderValue ..statusValue .. genreValue
     return parseListing(url)
 end
 
